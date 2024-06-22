@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import cv2
 import os
 from YOLO import computeCobb  # Assuming computeCobb is defined in YOLO.py
@@ -9,21 +9,18 @@ app = Flask(__name__)
 google_drive_api_key = os.environ.get('AIzaSyD6ETpwgy0neL0jFJEWCBDyjV2Gih0hqcE')
 
 
-@app.route('/compute-cobb', methods=['GET'])
+@app.route('/compute-cobb', methods=['POST'])
 def compute_cobb_api():
     try:
         file = request.files.get('image')
         if not file:
             return jsonify({'error': 'No image uploaded'}), 400
-        # Assuming you have logic here to download the file using the API key
-        # For simplicity, let's assume you download the file to 'temp_image.jpg'
 
-        # Read the downloaded image using OpenCV
-        image_path = cv2.imread('temp_image.jpg')
-        file.save(image_path)
+        # Save the uploaded image to a temporary file
+        file.save('temp_image.jpg')
 
         # Read the uploaded image using OpenCV
-        image = cv2.imread(image_path)
+        image = cv2.imread('temp_image.jpg')
 
         # Ensure the image is read correctly
         if image is None:
