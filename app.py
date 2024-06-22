@@ -1,36 +1,29 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 import cv2
 import os
 from YOLO import computeCobb  # Assuming computeCobb is defined in YOLO.py
 
 app = Flask(__name__)
 
+# Load the Google Drive API key from the environment variable
+google_drive_api_key = os.environ.get('AIzaSyD6ETpwgy0neL0jFJEWCBDyjV2Gih0hqcE')
 
 
-@app.route('/compute-cobb', methods=['POST'])
+@app.route('/compute-cobb', methods=['GET'])
 def compute_cobb_api():
     try:
-        file = request.files.get('image')
-        if not file:
-            return jsonify({'error': 'No image uploaded'}), 400
+        # Assuming you have logic here to download the file using the API key
+        # For simplicity, let's assume you download the file to 'temp_image.jpg'
 
-        # Save the uploaded image temporarily
-        image_path = 'temp_image.jpg'
-        file.save(image_path)
-
-        # Read the uploaded image using OpenCV
-        image = cv2.imread(image_path)
+        # Read the downloaded image using OpenCV
+        image = cv2.imread('temp_image.jpg')
 
         # Ensure the image is read correctly
         if image is None:
-            os.remove(image_path)
             return jsonify({'error': 'Invalid image file'}), 400
 
         # Perform Cobb angle computation
         cobb_up, cobb_low, img_cobb, result = computeCobb(image)
-
-        # Remove the temporary image file
-        os.remove(image_path)
 
         # Check the results of the computation
         if cobb_up is None or cobb_low is None:
@@ -48,4 +41,3 @@ def compute_cobb_api():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 4000))
     app.run(host='0.0.0.0', port=port, debug=True)
-
